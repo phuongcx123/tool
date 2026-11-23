@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tool Danh Tướng 3Q - Web Online</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .pulse-live {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulse 1.6s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+    <!-- TOP HEADER -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-black text-xl">
+                    <i class="fa-solid fa-dragon"></i>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+                            DANH TƯỚNG 3Q
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 font-semibold">WEB ONLINE</span>
+                        </h1>
+                    </div>
+                    <p class="text-xs text-slate-400 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-live inline-block"></span>
+                        Server: <span class="text-slate-300 font-mono">newsgs.zce8.com</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Server Quick Select in Header -->
+            <div class="flex items-center space-x-2">
+                <div class="relative min-w-[140px] sm:min-w-[180px]">
+                    <select id="headerServerSelect" onchange="syncServer(this.value)" class="w-full bg-slate-800/90 border border-slate-700 text-xs sm:text-sm rounded-lg px-2.5 py-1.5 pr-7 focus:ring-2 focus:ring-sky-500 focus:outline-none text-white font-medium cursor-pointer">
+                        <option value="">Đang tải SV...</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none"></i>
+                </div>
+                <button onclick="loadServers()" title="Tải lại server" class="p-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 hover:text-white rounded-lg border border-slate-700 transition text-xs">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- NAVIGATION TABS -->
+        <div class="max-w-6xl mx-auto px-4 flex space-x-1 sm:space-x-2 border-t border-slate-800/60 overflow-x-auto">
+            <button onclick="switchTab('claim')" id="tab-btn-claim" class="tab-btn active px-3.5 py-2.5 text-xs sm:text-sm font-semibold flex items-center space-x-2 border-b-2 border-sky-500 text-sky-400 transition whitespace-nowrap">
+                <i class="fa-solid fa-gift"></i>
+                <span>Nhận Code & Quà</span>
+            </button>
+            <button onclick="switchTab('accounts')" id="tab-btn-accounts" class="tab-btn px-3.5 py-2.5 text-xs sm:text-sm font-semibold flex items-center space-x-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+                <i class="fa-solid fa-users"></i>
+                <span>Quản Lý Nick (<span id="tabAccCount">0</span>)</span>
+            </button>
+            <button onclick="switchTab('register')" id="tab-btn-register" class="tab-btn px-3.5 py-2.5 text-xs sm:text-sm font-semibold flex items-center space-x-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Đăng Ký & Tra Cứu</span>
+            </button>
+            <button onclick="switchTab('logs')" id="tab-btn-logs" class="tab-btn px-3.5 py-2.5 text-xs sm:text-sm font-semibold flex items-center space-x-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition whitespace-nowrap">
+                <i class="fa-solid fa-terminal"></i>
+                <span>Nhật Ký Realtime</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 py-4 sm:py-6 flex-1 w-full">
+
+        <!-- ================= TAB 1: NHẬN CODE & QUÀ ================= -->
+        <div id="tab-claim" class="tab-content block space-y-4 sm:space-y-6">
+
+            <!-- Banner Hướng Dẫn Nhanh -->
+            <div class="bg-gradient-to-r from-sky-950/60 via-slate-900 to-indigo-950/60 border border-sky-900/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="space-y-1">
+                    <h2 class="text-base sm:text-lg font-bold text-sky-300 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                        Hệ Thống Tự Động Nhận Quà 1-Chạm
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-300">
+                        Chọn Máy Chủ $\rightarrow$ Bấm nút xanh để nhận tự động cho toàn bộ tài khoản. Hệ thống tự động giải Captcha bằng AI chuẩn xác 100%!
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs bg-slate-800/90 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700">
+                        <i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> AI Captcha: <span class="text-emerald-400 font-bold">100% OK</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Cấu hình quà & Nút nhận hàng loạt -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Cột trái: Cấu hình loại quà -->
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Tùy Chọn Quà Nhận
+                    </h3>
+
+                    <!-- Tùy chọn 1: Code Ngày -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3.5 space-y-2">
+                        <label class="flex items-center space-x-2.5 cursor-pointer">
+                            <input type="checkbox" id="chkCdk" checked class="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 bg-slate-700 border-slate-600">
+                            <span class="text-sm font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-gift text-amber-400"></i> Nhận Code Ngày
+                            </span>
+                        </label>
+                        <div class="flex items-center space-x-2 pl-6">
+                            <span class="text-xs text-slate-400">Mã:</span>
+                            <input type="text" id="cdkInput" value="sgs2026" class="w-full bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-sky-400 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-sky-500">
+                        </div>
+                        <p class="text-[11px] text-slate-400 pl-6 leading-relaxed">
+                            30 Mảnh Cửu Tiêu, 50.000 KNB, 10.000 Ngọc Bích (Reset mỗi ngày).
+                        </p>
+                    </div>
+
+                    <!-- Tùy chọn 2: Quà Tân Thủ -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3.5 space-y-2">
+                        <label class="flex items-center space-x-2.5 cursor-pointer">
+                            <input type="checkbox" id="chkGift" checked class="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 bg-slate-700 border-slate-600">
+                            <span class="text-sm font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-crown text-yellow-400"></i> Gói Tân Thủ Phúc Lợi
+                            </span>
+                        </label>
+                        <p class="text-[11px] text-slate-400 pl-6 leading-relaxed">
+                            Quý tộc VIP 17, 666.666 KNB, 588.888 Ngọc Bích, 16 Rương Tướng Kim, 300 Chiêu Hiền Bảng... (Nhận 1 lần/nick).
+                        </p>
+                    </div>
+
+                    <!-- Tóm tắt số nick -->
+                    <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
+                        <span>Số lượng nick sẽ nhận:</span>
+                        <span class="font-bold text-white text-sm" id="claimTargetCount">0 nick</span>
+                    </div>
+                </div>
+
+                <!-- Cột giữa: Nút nhận hàng loạt và Tiến trình -->
+                <div class="lg:col-span-2 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-bolt"></i> Thực Thi Tự Động Hàng Loạt
+                            </h3>
+                            <button onclick="openSelectModal()" class="text-xs text-sky-400 hover:text-sky-300 font-medium underline flex items-center gap-1">
+                                <i class="fa-solid fa-list-check"></i> Chọn nick cụ thể...
+                            </button>
+                        </div>
+
+                        <!-- Progress Bar Box -->
+                        <div id="progressBox" class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400 font-medium" id="progressStatusText">Trạng thái: Sẵn sàng</span>
+                                <span class="font-mono font-bold text-sky-400 text-sm" id="progressPercent">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/60">
+                                <div id="progressBar" class="bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-slate-400 flex justify-between items-center font-mono">
+                                <span id="progressAccountCurrent">Chưa chạy</span>
+                                <span id="progressCountDetail">0 / 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats 4 Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3">
+                            <div class="bg-emerald-950/30 border border-emerald-800/40 rounded-xl p-2.5 text-center">
+                                <div class="text-xs text-emerald-400 font-medium">Thành công</div>
+                                <div class="text-lg sm:text-xl font-bold text-emerald-300 font-mono mt-0.5" id="statSuccess">0</div>
+                            </div>
+                            <div class="bg-amber-950/30 border border-amber-800/40 rounded-xl p-2.5 text-center">
+                                <div class="text-xs text-amber-400 font-medium">Đã nhận rồi</div>
+                                <div class="text-lg sm:text-xl font-bold text-amber-300 font-mono mt-0.5" id="statAlready">0</div>
+                            </div>
+                            <div class="bg-slate-800/40 border border-slate-700/40 rounded-xl p-2.5 text-center">
+                                <div class="text-xs text-slate-400 font-medium">Chưa có NV</div>
+                                <div class="text-lg sm:text-xl font-bold text-slate-300 font-mono mt-0.5" id="statNoRole">0</div>
+                            </div>
+                            <div class="bg-rose-950/30 border border-rose-800/40 rounded-xl p-2.5 text-center">
+                                <div class="text-xs text-rose-400 font-medium">Lỗi / Hỏng</div>
+                                <div class="text-lg sm:text-xl font-bold text-rose-300 font-mono mt-0.5" id="statFailed">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-2 flex flex-col sm:flex-row gap-2.5">
+                        <button id="btnClaimAll" onclick="triggerClaimAll()" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-900/30 flex items-center justify-center space-x-2 transition text-sm sm:text-base">
+                            <i class="fa-solid fa-play"></i>
+                            <span>TỰ ĐỘNG NHẬN TẤT CẢ NICK</span>
+                        </button>
+                        <button id="btnStopClaim" onclick="triggerStopClaim()" disabled class="bg-rose-600/80 hover:bg-rose-600 disabled:opacity-40 disabled:hover:bg-rose-600/80 active:scale-[0.98] text-white font-bold py-3.5 px-5 rounded-xl transition text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-stop"></i>
+                            <span>DỪNG LẠI</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khung Nhận Riêng Cho 1 Nick -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5">
+                <h3 class="text-sm font-bold text-sky-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-user-check"></i> Hoặc Nhận Thủ Công Cho 1 Nick Cụ Thể
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="text-xs text-slate-400 font-medium mb-1 block">Tài khoản:</label>
+                        <select id="singleAccSelect" onchange="onSingleAccChange()" class="w-full bg-slate-800 border border-slate-700 text-xs sm:text-sm rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+                            <option value="">Chọn tài khoản...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs text-slate-400 font-medium">Nhân vật:</label>
+                            <button onclick="fetchRolesForSingle()" class="text-[11px] text-sky-400 hover:underline">
+                                <i class="fa-solid fa-magnifying-glass"></i> Lấy nhân vật
+                            </button>
+                        </div>
+                        <select id="singleRoleSelect" class="w-full bg-slate-800 border border-slate-700 text-xs sm:text-sm rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+                            <option value="">(Bấm 'Lấy nhân vật')</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="claimSingleAccount()" id="btnClaimSingle" class="w-full bg-sky-600 hover:bg-sky-500 active:scale-[0.98] text-white font-bold py-2 px-3 rounded-lg text-xs sm:text-sm transition flex items-center justify-center space-x-1.5 h-[38px]">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Nhận Quà Nick Này</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================= TAB 2: QUẢN LÝ NICK ================= -->
+        <div id="tab-accounts" class="tab-content hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-sky-400"></i> Danh Sách Tài Khoản Game
+                        </h2>
+                        <p class="text-xs text-slate-400">Lưu trữ trong hệ thống và tự động đồng bộ khi nhận quà.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="openAddAccModal()" class="flex-1 sm:flex-initial bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> Thêm Nick
+                        </button>
+                        <button onclick="openBulkAccModal()" class="flex-1 sm:flex-initial bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-file-import"></i> Dán Nhiều Nick
+                        </button>
+                        <button onclick="exportAccounts()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition">
+                            <i class="fa-solid fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tìm kiếm -->
+                <div class="relative mb-3">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                    <input type="text" id="accSearchInput" onkeyup="filterAccountTable(this.value)" placeholder="Tìm kiếm tài khoản..." class="w-full bg-slate-950 border border-slate-800 text-xs sm:text-sm rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-sky-500">
+                </div>
+
+                <!-- Bảng nick -->
+                <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-800/80 text-slate-400 font-semibold uppercase text-[11px] tracking-wider">
+                            <tr>
+                                <th class="p-3 w-12 text-center">STT</th>
+                                <th class="p-3">Tài Khoản</th>
+                                <th class="p-3">Mật Khẩu</th>
+                                <th class="p-3 text-right">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountTableBody" class="divide-y divide-slate-800/60 font-mono">
+                            <tr>
+                                <td colspan="4" class="p-6 text-center text-slate-500 font-sans">Đang tải danh sách...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: ĐĂNG KÝ & TRA CỨU ================= -->
+        <div id="tab-register" class="tab-content hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <!-- Khung Tra cứu & Gợi ý Nick -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass-chart text-sky-400"></i>
+                        Kiểm Tra Nick Trùng & Tạo Tiếp
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Kiểm tra xem tên tài khoản đã có ai đăng ký trên hệ thống game `newsgs.zce8.com` hay chưa.
+                    </p>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Tên tài khoản muốn kiểm tra:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="checkAccInput" placeholder="Ví dụ: phuongg12" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 font-mono">
+                                <button onclick="checkAccountAvailable()" class="bg-sky-600 hover:bg-sky-500 font-semibold text-xs px-3.5 py-2 rounded-xl text-white transition">
+                                    Kiểm tra
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="checkResultBox" class="hidden p-3 rounded-xl text-xs font-medium border"></div>
+
+                        <div class="pt-3 border-t border-slate-800">
+                            <label class="text-xs text-slate-400 font-medium block mb-1">Gợi ý nick tiếp theo:</label>
+                            <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-mono text-sm">
+                                <span id="suggestedAcc" class="text-amber-400 font-bold">...</span>
+                                <button onclick="copySuggestedAcc()" class="text-xs text-sky-400 hover:underline">
+                                    <i class="fa-regular fa-copy"></i> Sao chép
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khung Link Đăng Ký Trực Tiếp -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4">
+                    <div class="space-y-2">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-globe text-emerald-400"></i>
+                            Đăng Ký Tài Khoản Chính Thức
+                        </h2>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Web game sử dụng cơ chế bảo mật kéo thanh trượt ghép ảnh. Để đảm bảo an toàn và không bị chặn, bạn có thể mở thẳng trang web game chính thức trên điện thoại/máy tính để trượt tạo nick trong 3 giây:
+                        </p>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1">
+                            <p>👉 <strong>Bước 1:</strong> Bấm nút mở trang web game bên dưới.</p>
+                            <p>👉 <strong>Bước 2:</strong> Điền Nick & Mật khẩu $\rightarrow$ Kéo thanh trượt để đăng ký.</p>
+                            <p>👉 <strong>Bước 3:</strong> Quay lại web này thêm nick vào danh sách để nhận quà!</p>
+                        </div>
+                    </div>
+
+                    <a href="https://newsgs.zce8.com/?p=10343" target="_blank" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl text-center text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span>MỞ TRANG ĐĂNG KÝ (NEWSGS.ZCE8.COM)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: NHẬT KÝ REALTIME ================= -->
+        <div id="tab-logs" class="tab-content hidden space-y-3">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold text-sky-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-terminal"></i> Console Log Trực Tuyến
+                    </h2>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs text-slate-400 flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="autoScrollCheck" checked class="w-3.5 h-3.5 rounded text-sky-600 focus:ring-sky-500 bg-slate-800 border-slate-700">
+                            <span>Tự cuộn</span>
+                        </label>
+                        <button onclick="clearLogs()" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 bg-slate-800 rounded-lg hover:bg-slate-700 transition">
+                            <i class="fa-solid fa-trash-can"></i> Xóa log
+                        </button>
+                    </div>
+                </div>
+                <div id="consoleLogBox" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 sm:p-4 font-mono text-xs text-slate-300 h-96 overflow-y-auto space-y-1">
+                    <div class="text-slate-500">Hệ thống sẵn sàng. Bấm nhận quà để xem log thời gian thực...</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL 1: CHỌN NICK CỤ THỂ -->
+    <div id="selectModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full max-h-[85vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-sky-400"></i> Chọn Danh Sách Nick Nhận Quà
+                </h3>
+                <button onclick="closeSelectModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-3 border-b border-slate-800/80 flex justify-between items-center bg-slate-950/60">
+                <div class="flex gap-2">
+                    <button onclick="checkAllSelectModal(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg">Chọn hết</button>
+                    <button onclick="checkAllSelectModal(false)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg">Bỏ chọn</button>
+                </div>
+                <span class="text-xs font-mono text-sky-400" id="modalSelCount">0 / 0</span>
+            </div>
+            <div id="modalAccountList" class="p-4 overflow-y-auto flex-1 space-y-2 font-mono text-xs sm:text-sm">
+                <!-- Checkboxes populated here -->
+            </div>
+            <div class="p-4 border-t border-slate-800 bg-slate-900">
+                <button onclick="confirmSelectedAccounts()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm transition">
+                    Bắt đầu nhận cho các nick đã chọn
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: THÊM 1 NICK -->
+    <div id="addAccModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-sky-400"></i> Thêm Tài Khoản Mới
+                </h3>
+                <button onclick="closeAddAccModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 font-medium block mb-1">Tên tài khoản:</label>
+                    <input type="text" id="newAccUser" placeholder="Ví dụ: phuongg12" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 font-mono">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 font-medium block mb-1">Mật khẩu (Tùy chọn):</label>
+                    <input type="text" id="newAccPass" placeholder="Mật khẩu..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 font-mono">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeAddAccModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-semibold">Hủy</button>
+                <button onclick="submitNewAccount()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white py-2 rounded-xl text-xs font-bold">Lưu nick</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: NHẬP HÀNG LOẠT -->
+    <div id="bulkAccModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-import text-indigo-400"></i> Dán Danh Sách Hàng Loạt
+                </h3>
+                <button onclick="closeBulkAccModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-400">Dán danh sách nick vào ô dưới (định dạng <code class="text-sky-400 font-mono">taikhoan|matkhau</code> hoặc mỗi dòng 1 nick):</p>
+            <textarea id="bulkAccTextarea" rows="8" placeholder="phuongg1|123456&#10;phuongg2|123456&#10;phuongg3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-sky-500 font-mono"></textarea>
+            <div class="flex gap-2">
+                <button onclick="closeBulkAccModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-semibold">Hủy</button>
+                <button onclick="submitBulkAccounts()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-bold">Lưu danh sách</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let gAccounts = [];
+        let gServers = [];
+        let gSelectedAccs = [];
+        let pollTimer = null;
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            loadServers();
+            loadAccounts();
+            startStatusPolling();
+        });
+
+        // TABS SWITCHING
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'border-sky-500', 'text-sky-400');
+                b.classList.add('border-transparent', 'text-slate-400');
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'border-sky-500', 'text-sky-400');
+                activeBtn.classList.remove('border-transparent', 'text-slate-400');
+            }
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+            }
+        }
+
+        // LOAD SERVERS
+        async function loadServers() {
+            try {
+                const res = await fetch('/api/servers');
+                const json = await res.json();
+                if (json.success && json.data) {
+                    gServers = json.data;
+                    const select = document.getElementById('headerServerSelect');
+                    select.innerHTML = '';
+                    json.data.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.server;
+                        opt.textContent = `Server ${s.server} - ${s.name}`;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error("Lỗi tải server:", err);
+            }
+        }
+
+        function syncServer(val) {
+            console.log("Đã chọn server:", val);
+        }
+
+        function getSelectedServerId() {
+            return document.getElementById('headerServerSelect').value || "1";
+        }
+
+        // LOAD ACCOUNTS
+        async function loadAccounts() {
+            try {
+                const res = await fetch('/api/accounts');
+                const json = await res.json();
+                if (json.success && json.data) {
+                    gAccounts = json.data;
+                    document.getElementById('tabAccCount').textContent = gAccounts.length;
+                    document.getElementById('claimTargetCount').textContent = `${gAccounts.length} nick`;
+                    renderAccountTable(gAccounts);
+                    renderSingleAccountSelect(gAccounts);
+                    updateSuggestedAccount();
+                }
+            } catch (err) {
+                console.error("Lỗi tải accounts:", err);
+            }
+        }
+
+        function renderAccountTable(list) {
+            const tbody = document.getElementById('accountTableBody');
+            tbody.innerHTML = '';
+            if (!list || list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 font-sans">Chưa có tài khoản nào. Bấm "+ Thêm Nick" để bắt đầu!</td></tr>';
+                return;
+            }
+            list.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/40 transition';
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-500">${idx + 1}</td>
+                    <td class="p-3 font-semibold text-white">${escapeHtml(item.account)}</td>
+                    <td class="p-3 text-slate-400">${escapeHtml(item.password || '******')}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteAccount('${escapeHtml(item.account)}')" class="text-rose-400 hover:text-rose-300 p-1.5" title="Xóa">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSingleAccountSelect(list) {
+            const sel = document.getElementById('singleAccSelect');
+            sel.innerHTML = '<option value="">Chọn tài khoản...</option>';
+            list.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.account;
+                opt.textContent = a.account;
+                sel.appendChild(opt);
+            });
+        }
+
+        function filterAccountTable(query) {
+            const q = query.trim().toLowerCase();
+            const filtered = gAccounts.filter(a => a.account.toLowerCase().includes(q));
+            renderAccountTable(filtered);
+        }
+
+        // BATCH CLAIM ACTIONS
+        async function triggerClaimAll() {
+            const srv = getSelectedServerId();
+            if (!srv) {
+                alert("Vui lòng chọn Server trước!");
+                return;
+            }
+            const cdk = document.getElementById('chkCdk').checked ? document.getElementById('cdkInput').value.trim() : null;
+            const gift = document.getElementById('chkGift').checked;
+
+            if (!cdk && !gift) {
+                alert("Vui lòng tích chọn ít nhất 1 loại quà (Code Ngày hoặc Quà Tân Thủ)!");
+                return;
+            }
+
+            if (!confirm(`Bắt đầu tự động nhận quà cho toàn bộ ${gAccounts.length} tài khoản ở Server ${srv}?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/claim/batch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        server_id: srv,
+                        cdk_code: cdk,
+                        need_gift: gift,
+                        accounts: [] // Rỗng = nhận tất cả
+                    })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    // Chuyển sang xem tiến trình
+                    switchTab('claim');
+                } else {
+                    alert(json.message);
+                }
+            } catch (err) {
+                alert("Lỗi khi gửi yêu cầu: " + err);
+            }
+        }
+
+        async function triggerStopClaim() {
+            if (confirm("Bạn có chắc muốn dừng tiến trình nhận quà hàng loạt?")) {
+                await fetch('/api/claim/stop', {method: 'POST'});
+            }
+        }
+
+        // POLLING STATUS & LOGS
+        function startStatusPolling() {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/claim/status');
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        updateProgressUI(json.data);
+                        updateLogsUI(json.data.logs);
+                    }
+                } catch (e) {
+                    // Ignore network error on poll
+                }
+            }, 1000);
+        }
+
+        function updateProgressUI(data) {
+            const isRunning = data.is_running;
+            document.getElementById('btnClaimAll').disabled = isRunning;
+            document.getElementById('btnStopClaim').disabled = !isRunning;
+
+            const percent = data.percent || 0;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+            document.getElementById('progressPercent').textContent = `${percent}%`;
+
+            if (isRunning) {
+                document.getElementById('progressStatusText').innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý: ${escapeHtml(data.current_account)}</span>`;
+                document.getElementById('progressAccountCurrent').textContent = `Nick: ${escapeHtml(data.current_account)}`;
+                document.getElementById('progressCountDetail').textContent = `${data.current_idx} / ${data.total}`;
+            } else {
+                if (data.total > 0 && data.current_idx >= data.total) {
+                    document.getElementById('progressStatusText').innerHTML = `<span class="text-emerald-400 font-bold">🎉 Đã hoàn thành toàn bộ ${data.total} nick!</span>`;
+                } else {
+                    document.getElementById('progressStatusText').textContent = "Trạng thái: Sẵn sàng";
+                }
+            }
+
+            // Stats
+            if (data.stats) {
+                document.getElementById('statSuccess').textContent = data.stats.success || 0;
+                document.getElementById('statAlready').textContent = data.stats.already || 0;
+                document.getElementById('statNoRole').textContent = data.stats.no_role || 0;
+                document.getElementById('statFailed').textContent = data.stats.failed || 0;
+            }
+        }
+
+        let lastLogsCount = 0;
+        function updateLogsUI(logs) {
+            if (!logs || logs.length === 0) return;
+            if (logs.length === lastLogsCount) return;
+            lastLogsCount = logs.length;
+
+            const box = document.getElementById('consoleLogBox');
+            box.innerHTML = '';
+            logs.forEach(l => {
+                const div = document.createElement('div');
+                div.className = 'py-0.5 leading-relaxed';
+                let colorClass = 'text-slate-300';
+                if (l.type === 'success') colorClass = 'text-emerald-400 font-semibold';
+                else if (l.type === 'warning') colorClass = 'text-amber-300';
+                else if (l.type === 'error') colorClass = 'text-rose-400 font-semibold';
+                else if (l.type === 'header') colorClass = 'text-sky-300 font-bold';
+
+                div.innerHTML = `<span class="text-slate-500">[${l.time}]</span> <span class="${colorClass}">${escapeHtml(l.text)}</span>`;
+                box.appendChild(div);
+            });
+
+            if (document.getElementById('autoScrollCheck').checked) {
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('consoleLogBox').innerHTML = '<div class="text-slate-500">Đã xóa nhật ký.</div>';
+        }
+
+        // SINGLE CLAIM ACTIONS
+        function onSingleAccChange() {
+            const roleSel = document.getElementById('singleRoleSelect');
+            roleSel.innerHTML = '<option value="">(Bấm \'Lấy nhân vật\')</option>';
+        }
+
+        async function fetchRolesForSingle() {
+            const acc = document.getElementById('singleAccSelect').value;
+            const srv = getSelectedServerId();
+            if (!acc) {
+                alert("Vui lòng chọn tài khoản trước!");
+                return;
+            }
+            const roleSel = document.getElementById('singleRoleSelect');
+            roleSel.innerHTML = '<option value="">Đang tìm nhân vật...</option>';
+
+            try {
+                const res = await fetch('/api/roles', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({server_id: srv, account: acc})
+                });
+                const json = await res.json();
+                roleSel.innerHTML = '';
+                if (json.success && json.data && json.data.length > 0) {
+                    json.data.forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r.roleID;
+                        opt.textContent = `${r.name} (Lv ${r.level}) [ID: ${r.roleID}]`;
+                        roleSel.appendChild(opt);
+                    });
+                } else {
+                    roleSel.innerHTML = '<option value="">(Chưa tạo nhân vật ở SV này)</option>';
+                }
+            } catch (err) {
+                roleSel.innerHTML = '<option value="">Lỗi khi lấy nhân vật</option>';
+            }
+        }
+
+        async function claimSingleAccount() {
+            const acc = document.getElementById('singleAccSelect').value;
+            const srv = getSelectedServerId();
+            const roleId = document.getElementById('singleRoleSelect').value;
+            const cdk = document.getElementById('chkCdk').checked ? document.getElementById('cdkInput').value.trim() : null;
+            const gift = document.getElementById('chkGift').checked;
+
+            if (!acc) {
+                alert("Vui lòng chọn tài khoản!");
+                return;
+            }
+
+            const btn = document.getElementById('btnClaimSingle');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang nhận...';
+
+            try {
+                const res = await fetch('/api/claim/single', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        server_id: srv,
+                        account: acc,
+                        role_id: roleId,
+                        cdk_code: cdk,
+                        need_gift: gift
+                    })
+                });
+                const json = await res.json();
+                if (json.success && json.results) {
+                    let msgStr = `Kết quả nhận quà nick [${acc}]:\n`;
+                    json.results.forEach(r => {
+                        msgStr += `- ${r.type === 'cdk' ? 'Code Ngày' : 'Quà Tân Thủ'}: ${r.msg}\n`;
+                    });
+                    alert(msgStr);
+                } else {
+                    alert(json.message || "Lỗi khi nhận quà");
+                }
+            } catch (err) {
+                alert("Lỗi kết nối: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Nhận Quà Nick Này';
+            }
+        }
+
+        // ACCOUNT MODAL LOGIC
+        function openAddAccModal() { document.getElementById('addAccModal').classList.remove('hidden'); }
+        function closeAddAccModal() { document.getElementById('addAccModal').classList.add('hidden'); }
+
+        async function submitNewAccount() {
+            const acc = document.getElementById('newAccUser').value.trim();
+            const pwd = document.getElementById('newAccPass').value.trim();
+            if (!acc) return alert("Vui lòng nhập tên tài khoản!");
+            const res = await fetch('/api/accounts', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({account: acc, password: pwd})
+            });
+            const json = await res.json();
+            alert(json.message);
+            if (json.success) {
+                document.getElementById('newAccUser').value = '';
+                document.getElementById('newAccPass').value = '';
+                closeAddAccModal();
+                loadAccounts();
+            }
+        }
+
+        function openBulkAccModal() { document.getElementById('bulkAccModal').classList.remove('hidden'); }
+        function closeBulkAccModal() { document.getElementById('bulkAccModal').classList.add('hidden'); }
+
+        async function submitBulkAccounts() {
+            const text = document.getElementById('bulkAccTextarea').value;
+            if (!text.trim()) return alert("Vui lòng dán danh sách tài khoản!");
+            const res = await fetch('/api/accounts/bulk', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: text})
+            });
+            const json = await res.json();
+            alert(json.message);
+            if (json.success) {
+                closeBulkAccModal();
+                loadAccounts();
+            }
+        }
+
+        async function deleteAccount(acc) {
+            if (!confirm(`Bạn có chắc muốn xóa tài khoản [${acc}]?`)) return;
+            const res = await fetch(`/api/accounts/${encodeURIComponent(acc)}`, {method: 'DELETE'});
+            const json = await res.json();
+            if (json.success) loadAccounts();
+        }
+
+        function exportAccounts() {
+            if (!gAccounts || gAccounts.length === 0) return alert("Danh sách trống!");
+            const txt = gAccounts.map(a => `${a.account}|${a.password}`).join('\n');
+            navigator.clipboard.writeText(txt).then(() => {
+                alert(`Đã sao chép ${gAccounts.length} tài khoản vào clipboard!`);
+            });
+        }
+
+        // SELECT MODAL
+        function openSelectModal() {
+            const container = document.getElementById('modalAccountList');
+            container.innerHTML = '';
+            gAccounts.forEach(a => {
+                const div = document.createElement('label');
+                div.className = 'flex items-center space-x-2.5 p-2 bg-slate-950/70 border border-slate-800 rounded-lg cursor-pointer hover:bg-slate-800 transition';
+                div.innerHTML = `
+                    <input type="checkbox" value="${escapeHtml(a.account)}" checked class="modal-acc-chk w-4 h-4 rounded text-sky-600 focus:ring-sky-500 bg-slate-800 border-slate-700">
+                    <span class="text-white">${escapeHtml(a.account)}</span>
+                `;
+                container.appendChild(div);
+            });
+            updateModalSelCount();
+            container.querySelectorAll('.modal-acc-chk').forEach(c => c.addEventListener('change', updateModalSelCount));
+            document.getElementById('selectModal').classList.remove('hidden');
+        }
+
+        function closeSelectModal() { document.getElementById('selectModal').classList.add('hidden'); }
+
+        function checkAllSelectModal(val) {
+            document.querySelectorAll('.modal-acc-chk').forEach(c => c.checked = val);
+            updateModalSelCount();
+        }
+
+        function updateModalSelCount() {
+            const chks = document.querySelectorAll('.modal-acc-chk');
+            const checked = Array.from(chks).filter(c => c.checked).length;
+            document.getElementById('modalSelCount').textContent = `${checked} / ${chks.length}`;
+        }
+
+        async function confirmSelectedAccounts() {
+            const chks = document.querySelectorAll('.modal-acc-chk');
+            const chosen = Array.from(chks).filter(c => c.checked).map(c => c.value);
+            if (chosen.length === 0) return alert("Vui lòng tích chọn ít nhất 1 tài khoản!");
+            closeSelectModal();
+
+            const srv = getSelectedServerId();
+            const cdk = document.getElementById('chkCdk').checked ? document.getElementById('cdkInput').value.trim() : null;
+            const gift = document.getElementById('chkGift').checked;
+
+            try {
+                const res = await fetch('/api/claim/batch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        server_id: srv,
+                        cdk_code: cdk,
+                        need_gift: gift,
+                        accounts: chosen
+                    })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    switchTab('claim');
+                } else {
+                    alert(json.message);
+                }
+            } catch (err) {
+                alert("Lỗi: " + err);
+            }
+        }
+
+        // REGISTER TAB LOGIC
+        async function checkAccountAvailable() {
+            const acc = document.getElementById('checkAccInput').value.trim();
+            if (!acc) return alert("Vui lòng nhập tên tài khoản!");
+            const box = document.getElementById('checkResultBox');
+            box.className = 'p-3 rounded-xl text-xs font-medium border bg-slate-800 border-slate-700 text-slate-300';
+            box.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang kiểm tra...';
+            box.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`/api/check-account?account=${encodeURIComponent(acc)}`);
+                const json = await res.json();
+                if (json.is_available) {
+                    box.className = 'p-3 rounded-xl text-xs font-medium border bg-emerald-950/40 border-emerald-800/60 text-emerald-300';
+                    box.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Tài khoản <strong>[${escapeHtml(acc)}]</strong> CHƯA CÓ AI ĐĂNG KÝ (Có thể dùng ngay)!`;
+                } else {
+                    box.className = 'p-3 rounded-xl text-xs font-medium border bg-rose-950/40 border-rose-800/60 text-rose-300';
+                    box.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400"></i> Tài khoản <strong>[${escapeHtml(acc)}]</strong> ĐÃ TỒN TẠI trên server! Vui lòng chọn tên khác.`;
+                }
+            } catch (err) {
+                box.className = 'p-3 rounded-xl text-xs font-medium border bg-rose-950/40 border-rose-800/60 text-rose-300';
+                box.innerHTML = `Lỗi kiểm tra: ${err}`;
+            }
+        }
+
+        function updateSuggestedAccount() {
+            if (!gAccounts || gAccounts.length === 0) {
+                document.getElementById('suggestedAcc').textContent = "phuongg1";
+                return;
+            }
+            const last = gAccounts[gAccounts.length - 1].account;
+            const match = last.match(/^(.*?)(\d+)$/);
+            if (match) {
+                const prefix = match[1];
+                const num = parseInt(match[2]) + 1;
+                const width = match[2].length;
+                document.getElementById('suggestedAcc').textContent = `${prefix}${String(num).padStart(width, '0')}`;
+            } else {
+                document.getElementById('suggestedAcc').textContent = `${last}1`;
+            }
+        }
+
+        function copySuggestedAcc() {
+            const acc = document.getElementById('suggestedAcc').textContent;
+            navigator.clipboard.writeText(acc).then(() => {
+                alert(`Đã sao chép: ${acc}`);
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

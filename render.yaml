@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: tool-danhtuong3q
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn web_app:app
+    plan: free
