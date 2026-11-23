@@ -139,6 +139,7 @@ class BatchClaimManager:
                     if not roles:
                         self.add_log(f"  ⚠️ Nick [{account}] chưa tạo nhân vật ở Server {server_id} -> Bỏ qua.", "warning")
                         self.stats["no_role"] += 1
+                        time.sleep(0.15)
                         continue
 
                     # Chọn nhân vật cấp cao nhất hoặc nhân vật đầu tiên
@@ -195,6 +196,9 @@ class BatchClaimManager:
             self.add_log(f"   - Lỗi / Thất bại: {self.stats['failed']}", "error" if self.stats['failed'] > 0 else "info")
             self.add_log("=" * 50, "header")
 
+            if not self.stop_flag:
+                self.current_idx = self.total
+                self.current_account = "Hoàn tất"
             self.is_running = False
             self.stop_flag = False
 

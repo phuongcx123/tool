@@ -698,13 +698,21 @@
 
             if (isRunning) {
                 document.getElementById('progressStatusText').innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý: ${escapeHtml(data.current_account)}</span>`;
-                document.getElementById('progressAccountCurrent').textContent = `Nick: ${escapeHtml(data.current_account)}`;
+                document.getElementById('progressAccountCurrent').textContent = `Đang xử lý: ${escapeHtml(data.current_account)}`;
                 document.getElementById('progressCountDetail').textContent = `${data.current_idx} / ${data.total}`;
             } else {
                 if (data.total > 0 && data.current_idx >= data.total) {
                     document.getElementById('progressStatusText').innerHTML = `<span class="text-emerald-400 font-bold">🎉 Đã hoàn thành toàn bộ ${data.total} nick!</span>`;
+                    document.getElementById('progressAccountCurrent').textContent = `Hoàn tất tất cả ${data.total} nick`;
+                    document.getElementById('progressCountDetail').textContent = `${data.total} / ${data.total}`;
+                } else if (data.total > 0 && data.current_idx < data.total) {
+                    document.getElementById('progressStatusText').innerHTML = `<span class="text-amber-400 font-bold">🛑 Đã dừng lại (${data.current_idx}/${data.total} nick)</span>`;
+                    document.getElementById('progressAccountCurrent').textContent = `Đã dừng tại: ${escapeHtml(data.current_account || 'N/A')}`;
+                    document.getElementById('progressCountDetail').textContent = `${data.current_idx} / ${data.total}`;
                 } else {
                     document.getElementById('progressStatusText').textContent = "Trạng thái: Sẵn sàng";
+                    document.getElementById('progressAccountCurrent').textContent = "Chưa chạy";
+                    document.getElementById('progressCountDetail').textContent = "0 / 0";
                 }
             }
 
